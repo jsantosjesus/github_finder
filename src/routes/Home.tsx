@@ -13,14 +13,17 @@ import Error from "../components/Error";
 export const Home = () => {
     const [user, setUser] = useState<UserProps | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [lastSearch, setLastSearch] = useState<string>("");
 
     const loadUser = async (userName: string) => {
 
         if (userName.length < 1) {
             setError("Digite pelo menos um caractere");
             setUser(null);
-        } else {
-
+        } else if(userName == lastSearch){
+            return;
+        }  else {
+            setLastSearch(userName);
             const res = await fetch(`https://api.github.com/users/${userName}`);
 
             const data = await res.json();
@@ -28,7 +31,8 @@ export const Home = () => {
             if (res.status === 404) {
                 setError("Erro ao buscar usuário");
                 setUser(null);
-            } else {
+            } 
+            else {
                 const { avatar_url, login, location, followers, following } = data;
 
                 const userData: UserProps = {
