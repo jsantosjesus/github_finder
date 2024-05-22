@@ -6,38 +6,51 @@ import classes from './Home.module.css';
 import { UserProps } from "../types/user";
 
 import { useState } from "react";
+import Error from "../components/Error";
 
 
 
 export const Home = () => {
     const [user, setUser] = useState<UserProps | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
+    const loadUser = async (userName: string) => {
 
-    const loadUser = async(userName: string) => {
+        if (userName.length < 1) {
+            setError("Digite pelo menos um caractere");
+            setUser(null);
+        } else {
 
-        const res = await fetch(`https://api.github.com/users/${userName}`);
+            const res = await fetch(`https://api.github.com/users/${userName}`);
 
-        const data = await res.json();
+            const data = await res.json();
 
-        const {avatar_url, login, location, followers, following} = data;
-        
-        const userData: UserProps = {
-            avatar_url,
-            login,
-            location,
-            followers,
-            following,
-        };
+            if (res.status === 404) {
+                setError("Erro ao buscar usuário");
+                setUser(null);
+            } else {
+                const { avatar_url, login, location, followers, following } = data;
 
-        setUser(userData);
+                const userData: UserProps = {
+                    avatar_url,
+                    login,
+                    location,
+                    followers,
+                    following,
+                };
 
+                setUser(userData);
+                setError(null);
+            }
+        }
     }
 
     return (
         <div className={classes.home}>
             <h1>Página Home</h1>
-            <Search loadUser={loadUser}/>
+            <Search loadUser={loadUser} />
             {user && <User {...user} />}
+            {error && <Error message={error}/>}
         </div>
     )
 }
