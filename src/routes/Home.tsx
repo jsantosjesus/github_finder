@@ -5,7 +5,7 @@ import classes from './Home.module.css';
 
 import { UserProps } from "../types/user";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Error from "../components/Error";
 
 
@@ -13,17 +13,20 @@ import Error from "../components/Error";
 export const Home = () => {
     const [user, setUser] = useState<UserProps | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [lastSearch, setLastSearch] = useState<string>("");
+    // const [lastSearch, setLastSearch] = useState<string>("");
+    const previousNameSearch = useRef<string>("");
+
 
     const loadUser = async (userName: string) => {
 
         if (userName.length < 1) {
             setError("Digite pelo menos um caractere");
             setUser(null);
-        } else if(userName == lastSearch){
+        } else if(userName == previousNameSearch.current){
             return;
         }  else {
-            setLastSearch(userName);
+            previousNameSearch.current = userName;
+            console.log('pesquisou')
             const res = await fetch(`https://api.github.com/users/${userName}`);
 
             const data = await res.json();
